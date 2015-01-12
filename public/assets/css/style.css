@@ -1141,7 +1141,7 @@ footer .menu li {
 
 @media screen and (min-width: 768px) {
   .hero.unit {
-    padding: 50px 0;
+    padding: 70px 0 50px;
   }
 }
 
@@ -1448,7 +1448,7 @@ footer .menu li {
 .post.excerpt.container header {
   *zoom: 1;
   width: 60%;
-  margin: 50px auto;
+  margin: 75px auto 50px;
 }
 
 .post.excerpt.container header:before,
