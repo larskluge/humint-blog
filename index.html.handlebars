@@ -32,7 +32,7 @@
         <div class="container">
           <div class="navbar-header">
             {{!-- Logo and Title --}}
-            <a href="" class="navbar-brand"><img src="/assets/images/logo.png" alt="">Humint</a>
+            <a href="/" class="navbar-brand"><img src="/assets/images/logo.png" alt="">Humint</a>
             {{!-- Blog description --}}
             <span class="brand-tagline pull-left">We help brands create digital currencies to make good.</span>
           </div>
@@ -69,7 +69,7 @@
                     {{#if timestamp}}
                     <time class='post date' datetime="{{datetime timestamp "MMM Do, YYYY"}}">{{datetime timestamp "MMM Do, YYYY"}}</time>
                     {{/if}}
-                    <h1><a href="{{path}}">{{this.title}}</a></h1>
+                    <h1><a href="{{path}}">{{title}}</a></h1>
                   </header>
                 </article>
                 {{!-- post read more --}}
@@ -94,7 +94,9 @@
       {{/each}}
       {{!-- Output pagination --}}
       <div class="pagination holder">
-        {{pagination}}
+        <nav class="pagination" role="navigation">
+            <span class="page-number">Page 1 of 1</span>
+        </nav>
       </div>
     </main>
 
