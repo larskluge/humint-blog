@@ -1113,6 +1113,7 @@ footer .menu li {
 -------------------------------------------------------------------*/
 
 .image.covered {
+  background-image: url('/assets/images/placeholder.jpg');
   position: relative;
   background-position: center center;
   background-repeat: no-repeat;
