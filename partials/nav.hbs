@@ -1,0 +1,41 @@
+<nav role="navigation" class="navbar navbar-default main-navigation">
+    <div class="container">
+        <div class="navbar-header">
+
+            {{!-- Logo and Title --}}
+            <a href="{{@blog.url}}" class="navbar-brand">{{#if @blog.logo}}<img src="{{@blog.url}}{{@blog.logo}}" alt="">{{/if}}{{@blog.title}}</a>
+
+            {{!-- Blog description --}}
+            {{#if @blog.description}}
+            <span class="brand-tagline pull-left">{{@blog.description}}</span>
+            {{/if}}
+
+        </div>
+        <div class="navbar-collapse">
+            <ul class="nav navbar-nav pull-right">
+                {{!--
+                    [LINK FOR STATIC PAGE] 
+                    put your static page link, using the post/page slug here 
+                    for instance, you could add about us link page with this markup : 
+                    <li>
+                        <a href="/about-us/">About Us</a>
+                    </li>
+                --}}
+
+                {{!-- [HOME PAGES SWITCHER MENU] }}
+                <li class="dropdown">
+                    <a href="#" data-toggle="dropdown" role="button" class="dropdown-toggle">Home Pages<i class="aecon-angle-down"></i>
+                    </a>
+                    <ul role="menu" class="dropdown-menu">
+                        <li role="presentation">
+                            <a href="http://demo.aestik.com/suave-ghost/def/" role="menuitem">Home Page 1</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="http://demo.aestik.com/suave-ghost/alt/" role="menuitem">Home Page 2</a>
+                        </li>
+                    </ul>
+                </li>{{!-- end [HOME PAGES SWITCHER MENU] --}}
+            </ul>
+        </div>
+    </div>
+</nav>
