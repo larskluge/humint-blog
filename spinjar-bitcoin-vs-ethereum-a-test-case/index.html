@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Spinjar: Bitcoin vs Ethereum, a Test Case</title>
+    <meta name="description" content="We help brands create digital currencies to make good.">
+    <meta name="author" content="Aestik">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
+
+    <link href="http://fonts.googleapis.com/css?family=Maven+Pro:400,500,700,900" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&amp;subset=latin,cyrillic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic&amp;subset=cyrillic,latin" rel="stylesheet" type="text/css">
+    <link href="/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="/assets/css/fonticon.css" rel="stylesheet">
+    <link href="/assets/css/nprogress.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <!-- <HTML5>shim, for IE6-8 support of HTML5 elements </HTML5> -->
+    <!--[if lt IE 9]>
+      <script src="/assets/js/vendor/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+  <body class="suave">
+    <header role="banner">
+      <nav role="navigation" class="navbar navbar-default main-navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <a href="/" class="navbar-brand"><img src="/assets/images/logo.png" alt="">Humint</a>
+            <span class="brand-tagline pull-left">We help brands create digital currencies to make good.</span>
+          </div>
+          <div class="navbar-collapse">
+            <ul class="nav navbar-nav pull-right"></ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="wrapper">
+        <article id="main-content-area" class="post container full" role="main">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-lg-offset-3">
+                <i class="post icon aecon-bookmark"></i>
+                <div class="post meta">
+                  <span class="badge">featured</span>
+                  <time class='post date' datetime="May 13th, 2014">May 13th, 2014</time>
+                  <div class="dot separator">.</div>
+                  <span class="post author">Humint</span>
+                </div>
+                <header>
+                  <h1>Spinjar: Bitcoin vs Ethereum, a Test Case</h1>
+                </header>
+              </div>
+            </div>
+          </div>
+          <div class="post content">
+            <div class="container">
+              <div class="row">
+                <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-lg-offset-3 the content">
+                  
+<p><img src="http://i.imgur.com/60Kw2mD.gif" alt=""></p>
+<p>by <a href="https://github.com/dennismckinnon">Dennis McKinnon</a> and <a href="https://twitter.com/aekym">Lars Kluge</a> </p>
+<p>Given the many new and exciting developments in the world of distributed application platforms, we though it might be a good idea to summarize a comparison of two approaches to developing so-called &quot;<a href="https://github.com/DavidJohnstonCEO/DecentralizedApplications">DApps</a>&quot;. In this piece we compare the trials and tribulations of Spinjar&apos;s development using both <a href="https://en.wikipedia.org/wiki/Bitcoin">Bitcoin</a> and <a href="https://www.ethereum.org/">Ethereum</a> technologies.</p>
+<p><em>Disclaimer: We admit that this article is somewhat unfair&#x2014;Ethereum isn&apos;t launched yet and therefore unproven in the &quot;real world&quot;. Bitcoin by contrast has adapted significantly since its initial launch, having built substantial attack resistance at the cost of additional complexity and a smaller feature set.</em></p>
+<h2 id="give-it-a-spin">Give it a Spin</h2>
+<p><a href="https://www.spinjar.me">Spinjar</a> is a social experiment testing whether or not a game of chance increases donations. In the current model, 70% of any incoming donation is forwarded directly to the receiver, while 30% is stashed in a global pot. With each donation, the pot increases, offering donors a chance to win up to 100x of the original donation amount. Donations that did not trigger a win are returned a confirmation transaction of minimal value.</p>
+<h2 id="already-oldschool">Already Oldschool</h2>
+<p>Spinjar is currently built on top of the Bitcoin network using a tried and true setup: <a href="https://en.bitcoin.it/wiki/Bitcoind">bitcoind</a>&#x2014;the reference implementation of Bitcoin [1] notifies a process about incoming transactions, and these events are stored in a queue and engaged by a worker process. From there, we proceed through the following chain:</p>
+<ol>
+<li>Verify that bitcoind notified our app. Is it a transaction sent to one of the Spinjar donation addresses? If not, abort.</li>
+<li>Check if a positive amount of Bitcoin was received. Abort if it&apos;s an outgoing transaction.</li>
+<li>Check for a minimum donation amount which is about 5-10x an average transaction fee. Abort if the donation would be eaten up by Bitcoin network fees.</li>
+<li>Estimate the &quot;from address&quot;. There is no defined Bitcoin from address for a transaction, so we have to estimate it and hope for the best.</li>
+<li>Load the project based on the relevant Spinjar donation address.</li>
+<li>Check whether or not the donation was already processed; bitcoind typically notifies twice per transaction. Abort if so.</li>
+<li>Calculate whether we have a win or a loss.</li>
+<li>Calculate the distribution between the project, pot, donor, house... And don&apos;t forget the transaction fee!</li>
+<li>Send a <a href="https://en.bitcoin.it/wiki/Raw_Transactions">raw transaction</a> with incoming transaction outputs as <em>the</em> input to make sure the transaction is relatively safe to send immediately with 0 confirmations. This includes a small confirmation amount returned to the donor in case he did not win the pot, primarily to provide some feedback [2] that the transaction was processed correctly.</li>
+</ol>
+<h2 id="ethereum-ease">Ethereum Ease</h2>
+<p>As it turns out, building Spinjar in Ethereum is orders of magnitude simpler:</p>
+<ul>
+<li>There is no need to calculate transaction fees: Ethereum contracts run via the <a href="http://blog.ethereum.org/2014/03/20/the-latest-evm-ethereum-is-a-trust-free-closure-system/">provided gas</a> of the triggered transaction.</li>
+<li>There is no <a href="https://bitcoin.stackexchange.com/questions/10986/what-is-meant-by-bitcoin-dust">dust</a>, so calculations to determine whether it is <em>worth</em> processing a transaction are totally unnecessary. That&apos;s right, no need to ensure that every output is above the estimated dust threshold, and no laborious adjusting of outputs to get around the dust level while still being able to make the transaction with very low amounts! Here it <em>just works</em>.</li>
+<li>A global pot is trivially simple to implement. There is no need to send the pot amount somewhere; it remains bound within the contract until somebody wins.</li>
+<li>Because Ethereum has a defined &quot;from&quot; address of each transaction, there is no need to estimate these and/or re-ignite some fairly played-out discussions!</li>
+<li>No need to check whether or not the donation was already processed. Each transaction is guaranteed to run only once with the current state. If a contract is run again, it&apos;s deterministic and would therefore have the very same end result. Alternatively, if the state is different the contract can&apos;t be run as a new transaction by definition.</li>
+<li>No need to check for double spends since the Spinjar logic runs within the network and is protected by it. No complex checking of transaction outputs that need to be reused. Since we never leave the network for calculations, there is no risk of a double spend based on multiple executions.</li>
+<li>No change calculation! Values are sent, and no change is returned.</li>
+<li>No secure server setup, private key protection or related esoteric wizardry. Ethereum contracts run within the network and are protected by it. By contrast, an application for the Bitcoin network runs outside of the network and needs to be protected by external security mechanisms.</li>
+<li>The infrastructure cost is significant lower using Ethereum, if not nearly zero. Running even a single server that interacts with the Bitcoin network is far more expensive.</li>
+</ul>
+<h2 id="no-dice">No Dice</h2>
+<p>One galling irritation in Ethereum development that is <em><a href="https://forum.ethereum.org/discussion/comment/2758/">the lack of true random numbers</a></em>. Since an Ethereum contract is designed to run deterministically, it is impossible to introduce this absolutely critical base for any chance calculation. Instead we are forced to <em>estimate</em> random via the previous block hash, the coinbase, and the current timestamp. Of course, these are not random, but rather provide a base by which to <em>determine</em> random. Future versions of Ethereum promise to provide a better mechanism for achieving randomness, but this is the temporary work-around chosen for this example.</p>
+<p>Any variable that is determined only at mining will be indeterminable to any transaction sent to that contract. These include timestamp and coinbase, both of which will be known to the miner. Assuming however that the miner and the sender are not the same (or colluding), this is relatively secure.</p>
+<p>One use of the previous hash is to act as a &quot;salt&quot; for the &quot;unpredictable&quot; number generation. In this case, if an untrustworthy miner is trying to game the system, he only has about a minute to do so. The more rare the outcome, the more secure this becomes. However, such a method should not be considered un-gameable.</p>
+<p>More advanced methods of obtaining random numbers which are effectively protected from miner manipulation are indeed possible. These require two stages to produce: Several participants must commit to secret values by submitting the hashes of those values, followed by the secret itself. This method could be implemented in a separate contract as a service, hopefully altogether avoiding participants&apos; interest in the outcome of the generation. The secrets from all participants would then be used to produce a new, unpredictable number.</p>
+<p>Finally, a third option is to use a trusted random data feed. This is perhaps the simplest to implement as it does not require coordination. It does however require trust in the source. If you are interested in this topic, Dennis is building one right now&#x2014;called <a href="https://github.com/dennismckinnon/Ethereum-Contracts/tree/master/RANDAO">RANDAO</a>. </p>
+<h2 id="manic-miners">Manic Miners</h2>
+<p>Ethereum contracts are run within a protected environment by some miner in the network, which gives said miners significant power. If a miner attempts to manipulate data that is fed to the contract at runtime, there are certain commands that they could apparently manipulate. coinbase and timestamp are two examples of commands that suffer this more easily. Given that these commands return data we&apos;ve deemed suitable for estimating randomness, the miner could try to alter these commands to win the pot. But the practical probability to game the system also depends on the odds of Spinjar, a 1/10 chance to win would be easier to game than a 1/100 chance since the miner would have to brute-force many different combinations of data provided to the contract to successfully win the pot. </p>
+<p>Other commands like prevhash are <em>harder</em> to manipulate since a contract has the option to validate it. i.e., a method here is to wait for 6 confirmations, and have a separate contract that simply accumulates prevhash, diff and timestamp data into itself. If at least one miner among the 6 is honest, or at least is not colluding in the attack, then that miner completely botches the attack.</p>
+<p>Another option is to create a separate, independent multiparty randomness contract and put 1% into a pot as an incentive for <em>the miner</em> of the block to participate. This provides a provable randomness more quickly than 6 blocks at the 6 block level of security and would provide a benefit for other contracts as well.</p>
+<h2 id="what-about-bitcoin-contracts-">What about Bitcoin Contracts?</h2>
+<p>Bitcoin contracts are always part of a transaction. They are not first-class citizens in the network. Once the transaction is sent, the same algorithm cannot be reactivated, but rather needs to be copied into a new transaction in order to be re-used. This implies that a transaction destined to participate in the &quot;chance&quot; part of Spinjar needs to be initiated from outside of the network, generally making Spinjar-as-Bitcoin-contract a complex and arguably impractical implementation, also requiring a fair degree of trust towards the initiating party.</p>
+<p>One possible solution would be Spinjar as an external system initiating a special multisig transaction which then asks donors to join it. A few limitations come with this approach. First of all, multisig transactions require a fixed number of participants, and here the number of donors which to define upfront is a bit unpractical. Second, the transaction is complete only when the last party signs the transaction&#x2014;before that, no feedback could be given to earlier donors. This is far and away from the &quot;almost instant&quot; confirmation returned to the donor with its current implementation. Third, signing into a multisig transaction is barely supported by any existing wallet software. Other potential pitfalls can also be imagined, altogether making it a very impractical approach.</p>
+<p>By contrast in Ethereum, the creator of the contract&apos;s algorithm is burdened with injecting it into the network just once. After that, it can be interacted with by anyone in the network, as often as desired, via a simple transaction. Voil&#xE0;&#x2014;done. </p>
+<h2 id="example-code">Example code</h2>
+<p>This is a theoretical implementation, designed for the current version of Ethereum, which is&#x2014;at the time of writing&#x2014;the <a href="https://github.com/ethereum/cpp-ethereum/wiki/LLL-PoC-5">Proof of Concept 5 (POC5)</a> test network, which is not production-ready.</p>
+<p><style>.gist { font-size: 12px; line-height: 1.3em }</style></p>
+<script src="https://gist.github.com/larskluge/a3e6c8d225fd8e50709e.js"></script>
+
+
+<h2 id="summary">Summary</h2>
+<p>So far we&apos;ve seen through the &quot;simple&quot; example of Spinjar, that a new world is opening up before us. What once required a relatively complex toolchain to achieve, is rendered almost trivially simple using Ethereum contracts. The <em>near</em> future is going to be very exciting indeed.</p>
+<p><em>Special thanks to Vitalik Buterin and Mike Hearn for some invaluable ideas and technical feedback!</em></p>
+<h2 id="tip-the-authors-using-spinjar">Tip the authors using Spinjar</h2>
+<p><a data-spinjar-widget="" href="https://www.spinjar.me/jars/1jarAA4yaiAjVW2XZcecupEGQjHBg6BgG">Donate &amp; Win</a></p>
+<script async src="https://www.spinjar.me/assets/widgets.js" type="text/javascript"></script>
+
+<hr>
+<p>[1] We chose bitcoind over other implementations since it is the <em>reference</em> implementation of Bitcoin with what we predict will be the most developer support going forward. We subsequently learned that, given the complexity of Spinjar, an implementation using bitcoinj would have been more appropriate. However this approach may also have revealed other implementation issues to work around. We are happy with the stability of the system thus far, but for another project we will reevaluate our decision.</p>
+<p>[2] The confirmation amount returned to the donor is currently the most stable solution to provide <em>some</em> feedback to the donor. Once <a href="https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki">BIP 70</a> receives wider adoption, a custom message could of course be returned to the donor instead&#x2014;a cleaner, easier and far less expensive approach.</p>
+
+                </div>
+                <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-lg-offset-3">
+                  <aside class="in-post meta">
+                    <h4 class="half stretched">Tags</h4>
+                    <div class="meta content">
+                      <p class="meta taxonomy"></p>
+                    </div>
+                  </aside>
+                  <aside class="in-post meta">
+                    <h4 class="half stretched">Share this post</h4>
+                    <div class="meta content">
+                      <div class="meta social">
+                        <a href="http://twitter.com/share?text=Spinjar: Bitcoin vs Ethereum, a Test Case&url=http://labs.humint.is/spinjar-bitcoin-vs-ethereum-a-test-case/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"><i class="icon-twitter-bird"></i></a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=http://labs.humint.is/spinjar-bitcoin-vs-ethereum-a-test-case/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"><i class="icon-facebook"></i></a>
+                        <a href="https://plus.google.com/share?url=http://labs.humint.is/spinjar-bitcoin-vs-ethereum-a-test-case/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;"><i class="icon-googleplus-rect"></i></a>
+                      </div>
+                    </div>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+    </main>
+
+    <!-- FOOTER-->
+    <footer role="contentinfo">
+      All content on Humint Labs is <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">Creative Commons licensed</a>, for non-commercial sharing  with attribution
+      <br>
+      <a href="http://www.humint.is" target="_blank">Humint</a> 2014
+    </footer>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-46858420-2', 'humint.is');
+      ga('send', 'pageview');
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="/assets/js/vendor/jquery.cookie.js"></script>
+    <script src="/assets/js/vendor/jquery.fitvids.js"></script>
+    <script src="/assets/js/vendor/nprogress.js"></script>
+    <script src="/assets/js/vendor/bootstrap.min.js"></script>
+    <script src="/assets/js/vendor/respond.min.js"></script>
+    <script src="/assets/js/script.js"></script>
+  </body>
+</html>
+
